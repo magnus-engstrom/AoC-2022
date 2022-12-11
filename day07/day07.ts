@@ -7,17 +7,17 @@ require('fs').readFile('day07/input.txt', 'utf8', (err: string, data: string) =>
     if (cmd.indexOf('$ cd') > -1 && cmd != '$ cd ..') cDir = cDir + '-' + cmd.split(' cd ')[1];
     if (cmd === '$ cd ..') cDir = dirs[cDir].parent;
     let s: string = cmd.split(' ')[1];
-    if (parsing) {
-      if (cmd.indexOf('dir') > -1 && !(cDir+'-'+s in dirs)) dirs[cDir+'-'+s] = {parent: cDir, size: 0};
-      if (cmd.indexOf('dir') === -1) {
-        let dirP: string = cDir;
-        while (typeof(dirP) !== 'undefined') {
-          dirs[dirP].size += parseInt(cmd.split(' ')[0]);
-          dirP = dirs[dirP].parent;
-        }
-      }
+    if (!parsing) {
+      parsing = (cmd === '$ ls');
+      continue;
     }
-    if (cmd.indexOf('$ ls') > -1) parsing = true;
+    if (cmd.indexOf('dir') > -1 && !(cDir+'-'+s in dirs)) dirs[cDir+'-'+s] = {parent: cDir, size: 0};
+    if (cmd.indexOf('dir') !== -1) continue
+    let dirP: string = cDir;
+    while (typeof(dirP) !== 'undefined') {
+      dirs[dirP].size += parseInt(cmd.split(' ')[0]);
+      dirP = dirs[dirP].parent;
+    }
   }
   let sizes: number[] = Object.values(dirs).map(x => x.size);
   console.log('Part 1:', sizes.filter(x => x < 100000).reduce((a, b) => a+b));
